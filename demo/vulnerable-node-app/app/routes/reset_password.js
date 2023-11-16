@@ -1,10 +1,7 @@
-// password.route.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User'); // Adjust the path based on your file structure
-
-// Function to generate a random hash
-// ... (other imports and configurations)
+const User = require('../models/User');
+const crypto = require('crypto');
 
 // Function to generate a random hash
 function generateResetHash() {
@@ -13,43 +10,62 @@ function generateResetHash() {
     return hash.digest('hex');
 }
 
-router.post('/reset_password', async (req, res) => {
-    const { email, password, hash } = req.body;
+router.get('/generate_reset_hash', async (req, res) => {
+    const { username } = req.query;
+
+    if (!username) {
+        return res.send('Please provide your username to reset your password.');
+    }
 
     try {
-        if (hash) {
-            // Change password if hash exists
-            const updatedUser = await User.findOneAndUpdate(
-                { email: email, resethash: hash },
-                { $set: { password: password, resethash: null } },
-                { new: true }
-            );
+        const user = await User.findOne({ username });
 
-            if (updatedUser) {
-                res.send('Password changed successfully');
-            } else {
-                res.send('Invalid email or reset hash');
-            }
+        if (!user) {
+            return res.send('Username does not exist. Cannot reset password.');
+        }
+
+        const resetHash = generateResetHash();
+        const updatedUser = await User.findOneAndUpdate(
+            { username },
+            { $set: { resethash: resetHash } },
+            { new: true }
+        );
+
+        if (updatedUser) {
+            res.render('reset_password_page', { username, resetHash });
         } else {
-            // Reset hash if hash doesn't exist
-            const resetHash = generateResetHash();
-            const user = await User.findOneAndUpdate(
-                { email: email },
-                { $set: { resethash: resetHash } },
-                { new: true }
-            );
-
-            if (user) {
-                res.send('Reset hash generated. Use this hash for password reset.');
-            } else {
-                res.send('User not found');
-            }
+            res.send('Error generating reset hash');
         }
     } catch (err) {
         res.status(500).send('An error occurred');
     }
 });
 
+router.post('/reset_password', async (req, res) => {
+    const { username, hash, newPassword } = req.body;
+
+    try {
+        const user = await User.findOne({ username });
+
+        if (user && user.resethash === hash) {
+            const updatedUser = await User.findOneAndUpdate(
+                { username },
+                { $set: { password: newPassword, resethash: null } },
+                { new: true }
+            );
+
+            if (updatedUser) {
+                res.send('Password changed successfully');
+            } else {
+                res.send('Failed to update password');
+            }
+        } else {
+            res.send('Invalid username or reset hash');
+        }
+    } catch (err) {
+        res.status(500).send('An error occurred');
+    }
+});
 
 module.exports = router;
 

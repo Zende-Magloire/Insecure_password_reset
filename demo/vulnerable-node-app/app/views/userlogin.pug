@@ -10,18 +10,34 @@ block content
   form#login_form(action="/login", method="POST")
     .form-group
       label(for="username" class="sr-only") Username
-      input(type="text" name="username")
+      input(type="text" name="username" id="username")
 
     .form-group
       label(for="password" class="sr-only") Password
-      input(type="password" name="password")
+      input(type="password" name="password" id="password")
 
     button#login_submit(type="submit" class="btn btn-primary") Login
 
   div#response
 
-  a(href="/reset_password") Forgot Password? Click to Reset
-  //- a(href="/change_password") Change Password (Optional)
+  a(href="#" id="reset_link") Forgot Password? Click to Reset
 
+  script.
+    const usernameInput = document.getElementById('username');
+    const resetLink = document.getElementById('reset_link');
 
+    usernameInput.addEventListener('input', function() {
+      if (usernameInput.value.trim() !== '') {
+        resetLink.href = `/reset_password/generate_reset_hash?username=${usernameInput.value.trim()}`;
+      } else {
+        resetLink.href = '#';
+      }
+    });
+
+    resetLink.addEventListener('click', function(event) {
+      if (usernameInput.value.trim() === '') {
+        event.preventDefault();
+        alert('Please provide a username to reset your password.');
+      }
+    });
 

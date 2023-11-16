@@ -2,7 +2,7 @@ extends layout.pug
 
 block scripts
   script(src="/js/login.js")
-  
+
 block content
   h1= "User Login"
 
@@ -15,5 +15,9 @@ block content
       label(for="password", class="sr-only") Password
       input(type="password", name="password")
     button#login_submit(type="submit" class="btn btn-primary") Login
+
+ 
+  div
+    a(href="../reset_password.php") Forgot Password? Click to Reset
 
   div#response

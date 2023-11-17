@@ -2,7 +2,8 @@ extends layout
 
 block scripts
   script(src="/js/login.js")
-  
+  script(src="/js/reset_password_secure.js") 
+
 block content
   h1 User Login
 
@@ -21,16 +22,22 @@ block content
   div#response
 
   a(href="#" id="reset_link") Forgot Password? Click to Reset
+  br
+  a(href="#" id="reset_safe_link")
+    | Click to securely reset your password
 
   script.
     const usernameInput = document.getElementById('username');
     const resetLink = document.getElementById('reset_link');
+    const resetSafeLink = document.getElementById('reset_safe_link');
 
     usernameInput.addEventListener('input', function() {
       if (usernameInput.value.trim() !== '') {
         resetLink.href = `/reset_password/generate_reset_hash?username=${usernameInput.value.trim()}`;
+        resetSafeLink.href = `/reset_password_secure/generate_reset_hash_safe?username=${usernameInput.value.trim()}`;
       } else {
         resetLink.href = '#';
+        resetSafeLink.href = '#';
       }
     });
 
@@ -38,6 +45,13 @@ block content
       if (usernameInput.value.trim() === '') {
         event.preventDefault();
         alert('Please provide a username to reset your password.');
+      }
+    });
+
+    resetSafeLink.addEventListener('click', function(event) {
+      if (usernameInput.value.trim() === '') {
+        event.preventDefault();
+        alert('Please provide a username to securely reset your password.');
       }
     });
 

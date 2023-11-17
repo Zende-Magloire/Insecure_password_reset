@@ -8,7 +8,8 @@ const config = require('./db');
 
 const userRoute = require('./routes/user.route');
 const defaultRoute = require('./routes/default.route');
-const passwordRoute = require('./routes/reset_password'); // Include the new route
+const passwordRoute = require('./routes/reset_password'); 
+const passwordRouteSecure = require('./routes/reset_password_secure'); 
 
 mongoose.Promise = global.Promise;
 mongoose.connect(config.DB, { useNewUrlParser: true }).then(
@@ -24,20 +25,20 @@ app.use(bodyParser.json());
 app.use(express.static('static'));
 app.set('view engine', 'pug');
 
-// Define the CORS options object
+
 const corsOptions = {
     origin: function (origin, callback) {
-        // Add your CORS logic here
-        callback(null, true); // Enable all origins as an example
+        callback(null, true);
     }
 };
 
-app.use(cors(corsOptions)); // Use CORS middleware with the defined options
+app.use(cors(corsOptions));
 
 app.use('/user', userRoute);
 app.use('/', defaultRoute);
 
-app.use('/reset_password', passwordRoute); // Mount the new route
+app.use('/reset_password', passwordRoute); 
+app.use('/reset_password_secure', passwordRouteSecure);  
 
 let port = process.env.PORT || 4000;
 

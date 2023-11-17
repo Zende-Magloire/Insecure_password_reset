@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const crypto = require('crypto');
 
-router.get('/generate_reset_hash', async (req, res) => {
+router.get('/generate_reset_hash_safe', async (req, res) => {
     const { username } = req.query;
 
     if (!username) {
@@ -18,7 +18,7 @@ router.get('/generate_reset_hash', async (req, res) => {
         }
 
         if (!user.resethash) {
-            const resetHash = generateRandomMD5Hash(); // Generate a new MD5 hash
+            const resetHash = generateRandomSecureHash(); // Generate a new random hash
             user.resethash = resetHash;
             await user.save();
         }
@@ -55,12 +55,12 @@ router.post('/reset_password', async (req, res) => {
     }
 });
 
-//function to generate the hash
-function generateRandomMD5Hash() {
-    const randomInt = Math.floor(Math.random() * (1010 - 1000 + 1)) + 1000; 
-    const hash = crypto.createHash('md5').update(String(randomInt)).digest('hex'); // Create MD5 hash
+function generateRandomSecureHash() {
+    const randomBytes = crypto.randomBytes(32); // Generate 32 bytes of random data
+    const hash = crypto.createHash('sha256').update(randomBytes).digest('hex'); // Create SHA-256 hash
     return hash;
 }
+
 
 module.exports = router;
 

@@ -23,7 +23,6 @@ async function generateSecureHash() {
   }
 }
 
-// Example usage
 generateSecureHash().then((secureHash) => {
   console.log("Secure hash:", secureHash);
 });
